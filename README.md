@@ -12,85 +12,108 @@ A Deep Learning and Computer Vision project that identifies genuine and forged h
 
 ## 1. Project Overview
 
-Handwritten signatures are commonly used for identity verification and authentication. However, distinguishing genuine signatures from forged ones can be challenging, particularly when signatures exhibit natural variations in handwriting.
+Handwritten signatures are widely used for identity verification and authentication. However, forged signatures can create security and verification challenges.
 
-This project develops a CNN-based image classification approach to distinguish genuine handwritten signatures from forged signatures.
+This project explores an automated approach to handwritten signature forgery detection using image processing and deep learning.
 
-The system processes signature images, performs image preprocessing, and trains a Convolutional Neural Network to learn visual patterns associated with genuine and forged signatures.
+The system uses a Convolutional Neural Network (CNN) to analyze signature images and classify them into two categories:
 
-The trained model can classify signature images into two categories:
+- **Genuine:** Authentic handwritten signatures.
+- **Forged:** Imitated or forged handwritten signatures.
 
-- **Genuine Signature:** An authentic handwritten signature.
-- **Forged Signature:** A forged handwritten signature.
+The project involves dataset collection, exploratory data analysis, image preprocessing, data augmentation, CNN model development, model training and performance evaluation.
 
 ## 2. Key Features
 
-- Signature image collection and preprocessing.
-- Genuine and forged signature classification.
-- Grayscale image processing.
-- Image resizing to 256 × 256 pixels.
-- CNN-based feature extraction and classification.
-- Dropout and Batch Normalization for model regularization.
-- Early Stopping to monitor validation loss.
-- Training and validation performance visualization.
-- Confusion matrix and classification report.
-- Model saving and signature prediction.
+- **Signature Image Processing:** Loads and processes handwritten signature images.
+- **Exploratory Data Analysis:** Examines signature datasets and compares image characteristics.
+- **Image Preprocessing:** Converts images to grayscale and resizes them to 256 × 256 pixels.
+- **Data Normalization:** Scales pixel values by dividing by 255.
+- **Data Augmentation:** Applies rotation, width and height shifting, brightness adjustment and zoom.
+- **CNN Architecture:** Implements a Sequential CNN model for binary image classification.
+- **Model Optimization:** Uses Dropout, Batch Normalization and Early Stopping.
+- **Performance Evaluation:** Evaluates predictions using a confusion matrix and classification report.
 
 ## 3. Dataset Description
 
-The project uses handwritten signature image collections organized into genuine and forged categories.
+The project uses genuine and forged handwritten signature images collected from multiple dataset directories.
 
-The notebook combines images from multiple dataset folders and a sample signature collection.
-
-**Dataset categories:**
+The notebook combines signature image collections and assigns binary labels:
 
 | Class | Label | Description |
 |---|---:|---|
-| Genuine | 0 | Authentic handwritten signatures |
-| Forged | 1 | Forged handwritten signatures |
+| Genuine | 0 | Authentic signature |
+| Forged | 1 | Forged signature |
 
-### Dataset Preprocessing
+The collected dataset contains **930 signature images**.
 
-The following preprocessing operations are implemented:
+### Dataset Examples
 
-1. Load signature images.
-2. Convert images to grayscale.
-3. Resize images to 256 × 256 pixels.
-4. Replicate grayscale channels to obtain three-channel input.
-5. Normalize pixel values to the range [0, 1].
-6. Assign binary class labels.
+![Genuine Signature Example](screenshots/genuine-signature-example.png)
 
-### Dataset Splitting
+*Example of a genuine handwritten signature.*
 
-The notebook first reserves approximately 1% of the collected data for inference. The remaining data is divided into training, validation and testing sets.
+![Forged Signature Example](screenshots/forged-signature-example.png)
 
-| Dataset | Number of images |
+*Example of a forged handwritten signature.*
+
+## 4. Image Preprocessing and Exploratory Data Analysis
+
+The notebook performs exploratory analysis to understand image characteristics and prepare the data for model training.
+
+The preprocessing pipeline includes:
+
+1. Loading signature images from the dataset directories.
+2. Converting images into grayscale.
+3. Resizing images to 256 × 256 pixels.
+4. Replicating the grayscale channel to create three-channel image arrays.
+5. Assigning binary labels to genuine and forged signatures.
+6. Normalizing image pixel values to the range [0, 1].
+7. Splitting the dataset into training, validation and testing subsets.
+
+### Image Channel Comparison
+
+![Image Channel Comparison](screenshots/image-channel-comparison.png)
+
+### Image Size Comparison
+
+![Image Size Comparison](screenshots/image-size-comparison.png)
+
+### Data Splitting
+
+The notebook uses `train_test_split` with a fixed random state of 26.
+
+| Dataset | Number of Images |
 |---|---:|
 | Training | 588 |
 | Validation | 148 |
 | Testing | 184 |
+| **Total** | **920** |
 
-The dataset itself is not included in this repository. Users must configure the dataset paths according to their local directory structure.
+The remaining 10 images are separated for inference.
 
-## 4. Exploratory Data Analysis
+## 5. Data Augmentation
 
-Exploratory analysis is performed to understand signature image characteristics before model training.
+To introduce variations in training images, the project uses TensorFlow Keras `ImageDataGenerator`.
 
-The notebook examines:
+The training augmentation configuration includes:
 
-- Genuine and forged signature samples.
-- Distribution of genuine and forged images.
-- RGB and grayscale image channels.
-- Different image resizing dimensions.
-- Image visibility and preprocessing requirements.
+- Rotation range: 30 degrees
+- Width shift range: 0.2
+- Height shift range: 0.2
+- Brightness range: 0.4–1.5
+- Zoom range: 0.3
+- Fill mode: Nearest
 
-Grayscale images resized to 256 × 256 pixels are selected for model input.
+Validation and test images use pixel rescaling without the training augmentation transformations.
 
-## 5. CNN Model Architecture
+## 6. CNN Model Architecture
 
 The project implements a Sequential Convolutional Neural Network using TensorFlow and Keras.
 
-### Architecture Overview
+The architecture consists of four convolutional blocks followed by fully connected layers.
+
+### Architecture Components
 
 | Layer | Configuration |
 |---|---|
@@ -107,110 +130,104 @@ The project implements a Sequential Convolutional Neural Network using TensorFlo
 | Conv2D | 128 filters, 3 × 3, ReLU |
 | MaxPooling2D | 2 × 2 |
 | Dropout | 0.25 |
-| Flatten | Feature transformation |
+| Flatten | Feature vector |
 | Dense | 128 neurons, ReLU |
-| BatchNormalization | Applied |
+| Batch Normalization | Applied |
 | Dropout | 0.25 |
 | Output | 1 neuron, Sigmoid |
 
-**Total parameters:** 1,146,785
-
-### Model Configuration
-
+**Model Configuration:**
 - Optimizer: Adam
 - Loss Function: Binary Crossentropy
 - Evaluation Metric: Accuracy
-- Batch Size: 32
-- Maximum Epochs: 100
-- Early Stopping: Patience of 10 epochs
-- Best Weights: Restored using validation loss monitoring
+- Early Stopping: Monitors validation loss with patience of 10 epochs and restores the best weights.
 
-## 6. Model Training and Evaluation
+The model contains approximately 1.15 million parameters.
 
-The model is trained using the training dataset and monitored against the validation dataset.
+## 7. Model Training and Evaluation
 
-The notebook evaluates the model using:
+The CNN model is trained using the training dataset and monitored using validation data.
 
-- Training and validation accuracy.
-- Training and validation loss.
-- Testing accuracy.
-- Confusion matrix.
-- Precision, recall and F1-score.
+The notebook evaluates the trained model on the held-out test dataset using:
+- Confusion Matrix
+- Precision
+- Recall
+- F1-Score
+- Accuracy
 
-### Recorded Model Performance
+### Training and Validation Metrics
 
-The following values are taken from the notebook's recorded evaluation output.
+![Training and Validation Metrics](screenshots/training-validation-metrics.png)
+
+### Confusion Matrix
+
+![Confusion Matrix](screenshots/confusion-matrix.png)
+
+### Classification Report
+
+The recorded classification report shows the following results:
+
+| Metric | Class 0 | Class 1 |
+|---|---:|---:|
+| Precision | 0.96 | 0.96 |
+| Recall | 0.96 | 0.96 |
+| F1-Score | 0.96 | 0.96 |
+
+<details>
+<summary>Overall Evaluation Results</summary>
 
 | Metric | Result |
 |---|---:|
-| Training Accuracy | 100% |
-| Testing Accuracy | 95.7% |
+| Test Accuracy | **96%** |
+| Macro Average F1-Score | 0.96 |
+| Weighted Average F1-Score | 0.96 |
 | Test Samples | 184 |
-| Class 0 Precision | 96% |
-| Class 1 Precision | 96% |
-| Class 0 Recall | 96% |
-| Class 1 Recall | 96% |
 
-The model achieved approximately 95.7% accuracy on the held-out test split.
+</details>
 
-The training accuracy is higher than the testing accuracy, indicating that further validation and generalization testing would be useful.
-
-## 7. Signature Prediction
-
-After training, the model is saved in HDF5 format as:
-
-`signature_model.h5`
-
-The notebook also implements a prediction function that accepts an image path and a trained model.
-
-The prediction output is classified using a sigmoid probability threshold of 0.5:
-
-- Prediction 0: Real Signature
-- Prediction 1: Forged Signature
+The model achieved a recorded test accuracy of **96%** on the held-out test dataset.
 
 ## 8. Technology Stack
 
 | Category | Technologies |
 |---|---|
 | Programming Language | Python |
-| Deep Learning | TensorFlow, Keras |
-| Computer Vision | OpenCV |
+| Deep Learning Framework | TensorFlow, Keras |
+| Image Processing | OpenCV, PIL |
 | Data Processing | NumPy, Pandas |
-| Visualization | Matplotlib, Seaborn |
-| Machine Learning | Scikit-learn |
-| Image Processing | Pillow |
-| Development Environment | Jupyter Notebook |
+| Data Visualization | Matplotlib, Seaborn |
+| Machine Learning Utilities | Scikit-learn |
+| Model Architecture | Convolutional Neural Network |
+| Development Environment | Jupyter Notebook / Google Colab |
 
 ## 9. Repository Structure
 
 ```text
 HANDWRITTEN-SIGNATURE-FORGERY-DETECTION-USING-CNN/
 │
-├── README.md
 ├── Handwritten_Signature_Forgery_Detection.ipynb
+├── README.md
 ├── requirements.txt
 ├── .gitignore
 │
-├── screenshots/
-│   ├── genuine-signature.png
-│   ├── forged-signature.png
-│   ├── training-results.png
-│   └── confusion-matrix.png
-│
-└── results/
-    └── evaluation-results.png
+└── screenshots/
+    │
+    ├── genuine-signature-example.png
+    ├── forged-signature-example.png
+    ├── image-channel-comparison.png
+    ├── image-size-comparison.png
+    ├── training-validation-metrics.png
+    └── confusion-matrix.png
 ```
-
-The screenshots and results directories are intended for genuine figures captured from the notebook. They can be added as the corresponding images become available.
 
 ## 10. Getting Started
 
 ### Prerequisites
 
-- Python 3.10
-- Jupyter Notebook
-- Signature image dataset
-- Required Python dependencies
+- Python 3.9 or compatible version
+- Jupyter Notebook or Google Colab
+- Required Python libraries listed in `requirements.txt`
+- Signature image dataset used by the notebook
 
 ### Step 1: Clone the Repository
 
@@ -230,18 +247,10 @@ cd HANDWRITTEN-SIGNATURE-FORGERY-DETECTION-USING-CNN
 python -m venv .venv
 ```
 
-Activate it:
-
-**Windows**
+Activate it on Windows:
 
 ```bash
 .venv\Scripts\activate
-```
-
-**macOS / Linux**
-
-```bash
-source .venv/bin/activate
 ```
 
 ### Step 4: Install Dependencies
@@ -250,28 +259,28 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 5: Configure Dataset Paths
-
-The original notebook uses local Windows directory paths.
-
-Update the paths in the data-loading cells to match the location of your signature dataset.
-
-### Step 6: Run the Notebook
+### Step 5: Run the Notebook
 
 ```bash
 jupyter notebook
 ```
 
-Open `Handwritten_Signature_Forgery_Detection.ipynb` and execute the cells in sequence.
+Open `Handwritten_Signature_Forgery_Detection.ipynb` and execute the notebook cells.
+
+**Note:** The original notebook uses local dataset directory paths. Download and organize the required signature datasets and update those paths to match your environment before running the notebook.
 
 ## 11. Future Enhancements
 
-- Explore Siamese Neural Networks for signature similarity learning.
-- Improve generalization across different handwriting styles.
-- Develop a real-time signature verification interface.
-- Integrate the trained model into a web application.
-- Evaluate performance on independent signature datasets.
-- Improve image preprocessing and prediction consistency.
+Potential improvements include:
+
+- Developing a user-friendly interface for uploading signature images.
+- Supporting real-time signature verification.
+- Experimenting with transfer learning and advanced CNN architectures.
+- Improving generalization using larger and more diverse signature datasets.
+- Exploring Siamese Networks for writer-independent signature verification.
+- Deploying the model as a web-based verification application.
+
+These are potential enhancements and are not claimed as completed implementations.
 
 ## 12. Author
 
@@ -285,4 +294,4 @@ Vellore Institute of Technology (VIT), India
 
 ---
 
-This project was developed as an academic exploration of deep learning and computer vision techniques for handwritten signature forgery detection.
+*This repository presents an academic deep learning project demonstrating image preprocessing, CNN-based binary classification and model evaluation for handwritten signature forgery detection.*
