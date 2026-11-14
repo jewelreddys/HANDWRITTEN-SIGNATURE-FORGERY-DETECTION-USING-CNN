@@ -1,0 +1,43 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dataset files
+Dataset/
+Dataset_Signature_Final/
+sample_Signature/
+archive/
+data/
+test/
+
+# Trained model files
+*.h5
+*.keras
+*.model
+*.weights.h5
+
+# Logs
+logs/
+*.log
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
